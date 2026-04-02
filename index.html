@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #1a202c;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      color: #718096;
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #4299e1;
+    }
+
+    .prefix {
+      background: #edf2f7;
+      padding: 12px 14px;
+      color: #718096;
+      font-weight: 600;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      border: none;
+      outline: none;
+      padding: 12px 14px;
+      font-size: 1rem;
+      width: 100%;
+      color: #1a202c;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #4299e1;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #3182ce;
+    }
+
+    .result {
+      display: none;
+      margin-top: 28px;
+      background: #ebf8ff;
+      border: 2px solid #bee3f8;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .result h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #4299e1;
+      margin-bottom: 8px;
+    }
+
+    .result .eindwaarde {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1a202c;
+      margin-bottom: 16px;
+    }
+
+    .result-details {
+      display: grid;
+      gap: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #4a5568;
+      border-top: 1px solid #bee3f8;
+      padding-top: 8px;
+    }
+
+    .detail-row span:last-child {
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .error {
+      display: none;
+      margin-top: 16px;
+      background: #fff5f5;
+      border: 2px solid #fed7d7;
+      border-radius: 10px;
+      padding: 14px;
+      color: #c53030;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>Finance Calculator</h1>
+  <p class="subtitle">Bereken hoeveel jouw geld waard wordt met rente op rente.</p>
+
+  <div class="input-group">
+    <label for="bedrag">Startbedrag (x)</label>
+    <div class="input-wrapper">
+      <span class="prefix">€</span>
+      <input type="number" id="bedrag" placeholder="bijv. 1000" min="0" step="0.01">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label for="rente">Jaarlijkse rente (y)</label>
+    <div class="input-wrapper">
+      <span class="prefix">%</span>
+      <input type="number" id="rente" placeholder="bijv. 5" min="0" step="0.01">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label for="jaren">Aantal jaren (z)</label>
+    <div class="input-wrapper">
+      <span class="prefix">jr</span>
+      <input type="number" id="jaren" placeholder="bijv. 10" min="1" step="1">
+    </div>
+  </div>
+
+  <button onclick="bereken()">Bereken</button>
+
+  <div class="error" id="fout">
+    Vul alle velden in met geldige getallen.
+  </div>
+
+  <div class="result" id="resultaat">
+    <h2>Eindwaarde na <span id="res-jaren"></span> jaar</h2>
+    <div class="eindwaarde" id="res-eindwaarde"></div>
+    <div class="result-details">
+      <div class="detail-row">
+        <span>Startbedrag</span>
+        <span id="res-start"></span>
+      </div>
+      <div class="detail-row">
+        <span>Totale winst</span>
+        <span id="res-winst"></span>
+      </div>
+      <div class="detail-row">
+        <span>Rente per jaar</span>
+        <span id="res-rente"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatEuro(getal) {
+    return '€ ' + getal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function bereken() {
+    const bedrag = parseFloat(document.getElementById('bedrag').value);
+    const rente  = parseFloat(document.getElementById('rente').value);
+    const jaren  = parseInt(document.getElementById('jaren').value);
+
+    const fout       = document.getElementById('fout');
+    const resultaat  = document.getElementById('resultaat');
+
+    // Verberg vorige resultaten
+    fout.style.display = 'none';
+    resultaat.style.display = 'none';
+
+    // Validatie
+    if (isNaN(bedrag) || isNaN(rente) || isNaN(jaren) || bedrag <= 0 || rente < 0 || jaren < 1) {
+      fout.style.display = 'block';
+      return;
+    }
+
+    // Berekening: samengestelde rente
+    // Formule: eindwaarde = bedrag * (1 + rente/100) ^ jaren
+    const eindwaarde = bedrag * Math.pow(1 + rente / 100, jaren);
+    const winst = eindwaarde - bedrag;
+
+    // Resultaten tonen
+    document.getElementById('res-jaren').textContent     = jaren;
+    document.getElementById('res-eindwaarde').textContent = formatEuro(eindwaarde);
+    document.getElementById('res-start').textContent     = formatEuro(bedrag);
+    document.getElementById('res-winst').textContent     = formatEuro(winst);
+    document.getElementById('res-rente').textContent     = rente + '%';
+
+    resultaat.style.display = 'block';
+  }
+
+  // Berekenen bij Enter-toets
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') bereken();
+  });
+</script>
+
+</body>
+</html>
