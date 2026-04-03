@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eenhoorn Finance Calculator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', Arial, sans-serif;
+      background: linear-gradient(135deg, #ffb3d9 0%, #ff80bf 30%, #d966ff 70%, #b84dff 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Zwevende eenhoorns op de achtergrond */
+    body::before {
+      content: '🦄 ✨ 🌈 ✨ 🦄 ✨ 🌈 ✨ 🦄 ✨ 🌈 ✨ 🦄 ✨ 🌈';
+      position: fixed;
+      top: 10px;
+      left: 0;
+      width: 100%;
+      font-size: 1.5rem;
+      opacity: 0.3;
+      white-space: nowrap;
+      animation: scroll 20s linear infinite;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '🌸 💜 🌸 💜 🌸 💜 🌸 💜 🌸 💜 🌸 💜 🌸 💜';
+      position: fixed;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      font-size: 1.5rem;
+      opacity: 0.3;
+      white-space: nowrap;
+      animation: scroll 15s linear infinite reverse;
+      pointer-events: none;
+    }
+
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(180, 0, 255, 0.25), 0 0 0 3px rgba(255,255,255,0.5);
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .unicorn-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 8px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #ff4da6, #cc00ff, #7700ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      color: #cc66ff;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      color: #9900cc;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 3px solid #ffb3e6;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: white;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #cc00ff;
+      box-shadow: 0 0 0 3px rgba(204,0,255,0.15);
+    }
+
+    .prefix {
+      background: linear-gradient(135deg, #ffb3e6, #e066ff);
+      padding: 12px 14px;
+      color: white;
+      font-weight: 900;
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    input[type="number"] {
+      border: none;
+      outline: none;
+      padding: 12px 14px;
+      font-size: 1rem;
+      width: 100%;
+      color: #660099;
+      font-family: 'Nunito', Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #ff4da6, #cc00ff, #7700ff);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: transform 0.1s, box-shadow 0.2s;
+      font-family: 'Nunito', Arial, sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(180,0,255,0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .result {
+      display: none;
+      margin-top: 28px;
+      background: linear-gradient(135deg, #fff0f9, #f5e6ff);
+      border: 3px solid #ffb3e6;
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .result h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #cc66ff;
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+
+    .result .eindwaarde {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #ff4da6, #cc00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .result .magic {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .result-details {
+      display: grid;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #9933cc;
+      border-top: 2px dashed #ffb3e6;
+      padding-top: 8px;
+      font-weight: 700;
+    }
+
+    .detail-row span:last-child {
+      font-weight: 900;
+      color: #7700ff;
+    }
+
+    .error {
+      display: none;
+      margin-top: 16px;
+      background: #fff0f5;
+      border: 2px solid #ffb3cc;
+      border-radius: 12px;
+      padding: 14px;
+      color: #cc0066;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <span class="unicorn-icon">🦄</span>
+    <h1>Eenhoorn Calculator</h1>
+    <p class="subtitle">✨ Bereken jouw magische rijkdom! ✨</p>
+  </div>
+
+  <div class="input-group">
+    <label>💰 Startbedrag (x)</label>
+    <div class="input-wrapper">
+      <span class="prefix">€</span>
+      <input type="number" id="bedrag" placeholder="bijv. 1000" min="0" step="0.01">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label>🌈 Jaarlijkse rente (y)</label>
+    <div class="input-wrapper">
+      <span class="prefix">%</span>
+      <input type="number" id="rente" placeholder="bijv. 5" min="0" step="0.01">
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label>⭐ Aantal jaren (z)</label>
+    <div class="input-wrapper">
+      <span class="prefix">jr</span>
+      <input type="number" id="jaren" placeholder="bijv. 10" min="1" step="1">
+    </div>
+  </div>
+
+  <button onclick="bereken()">🦄 Bereken mijn magisch geld! ✨</button>
+
+  <div class="error" id="fout">
+    🚫 Vul alle velden in met geldige getallen!
+  </div>
+
+  <div class="result" id="resultaat">
+    <h2>🌟 Eindwaarde na <span id="res-jaren"></span> jaar 🌟</h2>
+    <div class="eindwaarde" id="res-eindwaarde"></div>
+    <div class="magic">🦄✨🌈✨🦄</div>
+    <div class="result-details">
+      <div class="detail-row">
+        <span>💵 Startbedrag</span>
+        <span id="res-start"></span>
+      </div>
+      <div class="detail-row">
+        <span>🎉 Totale winst</span>
+        <span id="res-winst"></span>
+      </div>
+      <div class="detail-row">
+        <span>📈 Rente per jaar</span>
+        <span id="res-rente"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function formatEuro(getal) {
+    return '€ ' + getal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function bereken() {
+    const bedrag = parseFloat(document.getElementById('bedrag').value);
+    const rente  = parseFloat(document.getElementById('rente').value);
+    const jaren  = parseInt(document.getElementById('jaren').value);
+
+    const fout      = document.getElementById('fout');
+    const resultaat = document.getElementById('resultaat');
+
+    fout.style.display = 'none';
+    resultaat.style.display = 'none';
+
+    if (isNaN(bedrag) || isNaN(rente) || isNaN(jaren) || bedrag <= 0 || rente < 0 || jaren < 1) {
+      fout.style.display = 'block';
+      return;
+    }
+
+    const eindwaarde = bedrag * Math.pow(1 + rente / 100, jaren);
+    const winst = eindwaarde - bedrag;
+
+    document.getElementById('res-jaren').textContent      = jaren;
+    document.getElementById('res-eindwaarde').textContent = formatEuro(eindwaarde);
+    document.getElementById('res-start').textContent      = formatEuro(bedrag);
+    document.getElementById('res-winst').textContent      = formatEuro(winst);
+    document.getElementById('res-rente').textContent      = rente + '%';
+
+    resultaat.style.display = 'block';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') bereken();
+  });
+</script>
+
+</body>
+</html>
