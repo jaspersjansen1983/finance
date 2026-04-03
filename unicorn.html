@@ -334,6 +334,7 @@
     document.getElementById('res-rente').textContent      = rente + '%';
 
     resultaat.style.display = 'block';
+    resultaat.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   document.addEventListener('keydown', function(e) {
